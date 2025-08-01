@@ -1,32 +1,44 @@
-# ISAK-AGENT0.1
- 🎯 基于 LangGraph 的个人智能体系统   
-一个可成长的“数字副脑”，融合语音理解、任务规划、上下文记忆与行动执行。   
-具备多智能体协作架构，支持私有部署、跨平台使用，构建属于自己的 AI 伴生体。
+# Agent Date
 
+一个基于LangGraph和LangChain的智能体应用项目。
 
+## 🚀 功能特性
 
+- 基于LangGraph的状态管理
+- 多智能体协作
+- OpenAI API集成
+- 模块化设计
 
+## 📋 环境要求
 
+- Python 3.12+
+- OpenAI API密钥
 
-以下是不同的Agent展示：
-| Agent 名称           | 功能说明                         | 共享数据           | 依赖工具/模块              | 完成状态   |
-|:---------------------|:---------------------------------|:-------------------|:---------------------------|:-----------|
-| 指令路由 Agent       | 识别输入意图并调度对应 Agent     | 所有 Agent         | LangGraph Router, OpenAI   | ✅ 已完成  |
-| 状态管理 Agent       | 记录任务状态、上下文、记忆       | 所有 Agent         | 本地 Dict, LangGraph State | ✅ 已完成  |
-| 内容生成 Agent       | 生成文本，如报告、邮件、合同     | 知识、客户、项目   | OpenAI, Templates          | ✅ 已完成  |
-| 认知链编织 Agent     | 将模糊想法拆解为多理论路径       | 内容生成、战略洞察 | 思维图谱+LLM               | ✅ 已完成  |
-| 会议记录 Agent       | 语音/文本会议自动摘要归档        | 知识、客户         | Whisper + GPT摘要          | ✅ 已完成  |
-| 决策档案 Agent       | 存储每次重大决策及理由           | 自我迭代           | 日志系统                   | ✅ 已完成  |
-| 文件管理 Agent       | 自动命名、分类、归档文件         | 项目、内容生成     | OS, 文件 API               | ✅ 已完成  |
-| 语境记忆 Agent       | 跨文化语境表达与情绪切换支持     | 客户、语言         | Prompt模板系统             | ✅ 已完成  |
-| 发票助手 Agent       | 语音→结构→Excel/PDF 发票         | 客户沟通、内容生成 | Pandas, GPT结构抽取        | ✅ 已完成  |
-| 多语言 Agent         | 翻译与润色多语言表达             | 所有 Agent         | OpenAI, DeepL              | ✅ 已完成  |
-| 客户沟通 Agent       | 转录、提取、记录客户语音         | 发票、项目、语言   | Whisper, NER               | ✅ 已完成  |
-| 知识管理 Agent       | 积累与检索农业/经济/AI知识       | 内容生成、决策     | 向量库、笔记系统           | ✅ 已完成  |
-| 项目管理 Agent       | 任务追踪、交付进度、提醒         | 客户、内容、文件   | StateMachine, 日历 API     | ✅ 已完成  |
-| 情绪与健康追踪 Agent | 分析语音/语言中情绪趋势          | 状态管理           | 情绪识别模型               | 🔄 开发中  |
-| 文档审核 Agent       | 对输出文档做结构/逻辑校验        | 内容生成           | 结构分析, LLM              | 🔄 开发中  |
-| 情报感知 Agent       | 实时从中东/农业/政策等源提取信号 | 项目、市场分析     | RSS/API + GPT过滤          | 🔄 开发中  |
-| 制度分析 Agent       | 分析政策/文化背后的制度逻辑      | 认知、决策         | NIE框架+分析Prompt         | 🔄 开发中  |
-| 文明建模 Agent       | 从提案推演其制度-资源系统模型    | 认知增强           | 系统映射+图谱结构          | 🔄 开发中  |
-| 时间分配优化 Agent   | 分析时间分布并建议优化           | 状态管理           | 日志分析, 可视化           | 🔄 开发中  |
+## 🛠️ 安装步骤
+
+1. **克隆项目**
+   ```bash
+   git clone <repository-url>
+   cd agent-date
+   ```
+
+2. **创建虚拟环境**
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate  # Linux/Mac
+   # 或
+   venv\Scripts\activate     # Windows
+   ```
+
+3. **安装依赖**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **配置环境变量**
+   ```bash
+   cp .env.example .env
+   # 编辑 .env 文件，添加您的API密钥
+   ```
+
+## 🏗️ 项目结构

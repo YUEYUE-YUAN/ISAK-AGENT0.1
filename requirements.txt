@@ -1,0 +1,28 @@
+# 核心依赖
+langgraph==0.6.1
+langchain==0.3.27
+openai==1.97.1
+
+# 环境管理
+python-dotenv==1.0.0
+
+# 数据处理
+pandas==2.1.4
+numpy==1.24.3
+
+# 日志和配置
+loguru==0.7.2
+pydantic==2.11.7
+
+# 测试
+pytest==7.4.3
+pytest-asyncio==0.21.1
+
+# 开发工具
+black==23.11.0
+flake8==6.1.0
+mypy==1.7.1
+
+# 文档
+sphinx==7.2.6
+sphinx-rtd-theme==1.3.0
