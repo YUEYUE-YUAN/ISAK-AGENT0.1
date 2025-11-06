@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from openai import OpenAI
 
 # --------------------------------------------------
 # 1. 加载 .env 文件中的环境变量
@@ -19,6 +20,37 @@ DEFAULT_MODEL = os.getenv("DEFAULT_MODEL", "gpt-3.5-turbo")
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", 1000))
 # 温度参数（0~1）
 TEMPERATURE = float(os.getenv("TEMPERATURE", 0.7))
+
+# --------------------------------------------------
+# 2.2 会话历史存储配置
+# --------------------------------------------------
+HISTORY_BACKEND = os.getenv("HISTORY_BACKEND", "memory")
+HISTORY_FILE_PATH = os.getenv("HISTORY_FILE_PATH", "outputs/history.json")
+HISTORY_CLOUD_URL = os.getenv("HISTORY_CLOUD_URL")
+HISTORY_CLOUD_TOKEN = os.getenv("HISTORY_CLOUD_TOKEN")
+HISTORY_CLOUD_TIMEOUT = float(os.getenv("HISTORY_CLOUD_TIMEOUT", 5.0))
+HISTORY_CLOUD_FALLBACK_PATH = os.getenv("HISTORY_CLOUD_FALLBACK_PATH")
+
+# --------------------------------------------------
+# 2.2.1 日程与任务存储配置
+# --------------------------------------------------
+CALENDAR_DB_PATH = os.getenv("CALENDAR_DB_PATH", "outputs/calendar.db")
+TASKS_FILE_PATH = os.getenv("TASKS_FILE_PATH", "outputs/tasks.json")
+
+# --------------------------------------------------
+# 2.3 向量知识库存储配置
+# --------------------------------------------------
+KB_BACKEND = os.getenv("KB_BACKEND", "memory")
+KB_FILE_PATH = os.getenv("KB_FILE_PATH", "outputs/vector_store.json")
+KB_CLOUD_URL = os.getenv("KB_CLOUD_URL")
+KB_CLOUD_TOKEN = os.getenv("KB_CLOUD_TOKEN")
+KB_CLOUD_TIMEOUT = float(os.getenv("KB_CLOUD_TIMEOUT", 5.0))
+KB_CLOUD_FALLBACK_PATH = os.getenv("KB_CLOUD_FALLBACK_PATH")
+
+# --------------------------------------------------
+# 2.1 OpenAI 客户端实例
+# --------------------------------------------------
+client = OpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_API_BASE)
 
 # --------------------------------------------------
 # 3. 调试与日志级别

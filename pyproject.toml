@@ -1,0 +1,28 @@
+[project]
+name = "my-langgraph-app"
+version = "0.1.0"
+description = "LangGraph agent with routing, personas, and tools"
+authors = [{ name = "LangGraph Team" }]
+requires-python = ">=3.11"
+dependencies = [
+  "langgraph==0.6.1",
+  "langchain==0.3.27",
+  "openai==1.97.1",
+  "python-dotenv==1.0.0",
+  "pandas==2.1.4",
+  "numpy==1.24.3",
+  "loguru==0.7.2",
+  "pydantic==2.11.7",
+  "pyyaml==6.0.1",
+  "requests==2.32.3"
+]
+
+[project.optional-dependencies]
+dev = ["pytest==7.4.3", "pytest-asyncio==0.21.1", "black==23.11.0", "flake8==6.1.0", "mypy==1.7.1"]
+
+[tool.pytest.ini_options]
+pythonpath = [".", "src"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

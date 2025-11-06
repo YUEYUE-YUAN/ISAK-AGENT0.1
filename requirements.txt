@@ -13,6 +13,8 @@ numpy==1.24.3
 # 日志和配置
 loguru==0.7.2
 pydantic==2.11.7
+pyyaml==6.0.1
+requests==2.32.3
 
 # 测试
 pytest==7.4.3
