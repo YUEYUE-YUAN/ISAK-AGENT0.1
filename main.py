@@ -3,9 +3,6 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Tuple
 
-from deepagents import Agent
-from deepagents.memory import Store
-
 from config import CALENDAR_DB_PATH, DEBUG, LOG_LEVEL, TASKS_FILE_PATH
 from agent.graph import components
 from graph_config import graph
@@ -30,9 +27,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 if DEBUG:
     logger.setLevel(logging.DEBUG)
-
-store = Store("workspace/longterm_memory")
-agent = Agent(memory=store)
 
 calendar_client = CalendarClient(Path(CALENDAR_DB_PATH))
 task_manager = TaskManager(Path(TASKS_FILE_PATH))
@@ -247,20 +241,10 @@ def handle_user_input(user_input: str) -> Tuple[str, bool]:
         return "\n".join(parts), True
 
     save_message("user", user_input)
-
-    session_summary = agent.memory.load("session_summary")
-    if session_summary:
-        logger.debug("Loaded session summary from DeepAgents store: %s", session_summary)
-
-    payload = {"input": user_input}
-    result = graph.invoke(payload)
+    result = graph.invoke({"input": user_input})
     response = result.get("response", "")
     if response:
         save_message("bot", response)
-    summary_parts = [part for part in (session_summary, f"User: {user_input}", f"Bot: {response}" if response else None) if part]
-    summary_text = "\n".join(summary_parts)
-    if summary_text:
-        agent.memory.save("session_summary", summary_text)
     return response, True
 
 

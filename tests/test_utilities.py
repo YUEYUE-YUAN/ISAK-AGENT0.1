@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from pathlib import Path
 import types
 
@@ -48,8 +48,8 @@ def test_calendar_client(tmp_path):
     client = CalendarClient(db_path)
     event = CalendarEvent(
         title="Kickoff",
-        start=datetime.now(timezone.utc),
-        end=datetime.now(timezone.utc) + timedelta(hours=1),
+        start=datetime.utcnow(),
+        end=datetime.utcnow() + timedelta(hours=1),
     )
     client.add_event(event)
     events = client.list_events()
