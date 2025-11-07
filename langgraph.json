@@ -1,0 +1,4 @@
+{
+  "entry_point": "agent.graph:graph",
+  "description": "LangGraph agent with routing, personas, tools, and queue integration"
+}
