@@ -4,7 +4,7 @@ from __future__ import annotations
 import asyncio
 import json
 import sqlite3
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
@@ -40,7 +40,7 @@ class AsyncTaskQueue:
     async def enqueue(self, payload: dict) -> int:
         async with self._lock:
             cursor = self._connection.cursor()
-            now = datetime.now(timezone.utc).isoformat()
+            now = datetime.utcnow().isoformat()
             cursor.execute(
                 "INSERT INTO tasks (payload, status, created_at, updated_at) VALUES (?, ?, ?, ?)",
                 (json.dumps(payload), TaskStatus.PENDING.value, now, now),
@@ -60,7 +60,7 @@ class AsyncTaskQueue:
                 return None
             cursor.execute(
                 "UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?",
-                (TaskStatus.IN_PROGRESS.value, datetime.now(timezone.utc).isoformat(), row["id"]),
+                (TaskStatus.IN_PROGRESS.value, datetime.utcnow().isoformat(), row["id"]),
             )
             self._connection.commit()
             return Task(
@@ -79,7 +79,7 @@ class AsyncTaskQueue:
                 (
                     TaskStatus.COMPLETED.value,
                     json.dumps(result),
-                    datetime.now(timezone.utc).isoformat(),
+                    datetime.utcnow().isoformat(),
                     task_id,
                 ),
             )
@@ -93,7 +93,7 @@ class AsyncTaskQueue:
                 (
                     TaskStatus.FAILED.value,
                     error,
-                    datetime.now(timezone.utc).isoformat(),
+                    datetime.utcnow().isoformat(),
                     task_id,
                 ),
             )

@@ -1,14 +1,18 @@
 # ISAK-Agent0.1
 
-一个具备多工具路由、Persona、知识库检索与后台队列的 LangGraph 智能体示例。
+一个具备多工具路由、Persona、知识库检索与后台队列的 LangGraph 智能体。
+
+由于饱受复杂工作流程，信息碎片化，信息隐私困扰，所以自己写了这个人agent的代码，可在CLI运行，解放生产力。
+
+下一个版本会加入：
+*语音识别/合成（Whisper + TTS）和图像理解节点，用于语音助手或场景识别
 
 ## 🚀 当前能力一览
 
 - **多智能体路由**：`src/agent/graph.py` 通过 `KnowledgeRouter` 识别需求并将请求分发给对话、摘要、调研、规划或文档生成子 Agent。
 - **Persona 支持**：`src/agent/personas/registry.yaml` 定义了多种语气与角色，路由结果会注入对应 Persona 风格到模型提示词。
 - **知识库检索**：`src/agent/memory/vector.py` 基于轻量向量存储实现项目级知识库，配合 `tools/docs.py` 提供离线相似度搜索。
-- **命令行体验**：`main.py` 在原有 `/summarize`、`/search`、`/history`、`/clear` 之上新增 `/plan`、`/research`、`/report`、`/schedule`、`/agenda`、`/task`、`/tasks`、`/remind` 等指令，便于直接调用专用子 Agent 与日程/任务助手。调用 `/plan` 时会自动触发 DeepAgents 的任务分解逻辑，因此无需提前手动划分任务层级。
-- **Streamlit Web 界面**：`streamlit_app.py` 基于同一套 `handle_user_input` 逻辑提供可视化聊天体验，支持命令提示、历史展示与会话结束提示，适合快速在浏览器中体验所有指令。
+- **命令行体验**：`main.py` 在原有 `/summarize`、`/search`、`/history`、`/clear` 之上新增 `/plan`、`/research`、`/report`、`/schedule`、`/agenda`、`/task`、`/tasks`、`/remind` 等指令，便于直接调用专用子 Agent 与日程/任务助手。
 - **工具生态**：`src/agent/tools` 下提供摘要复用、离线 Web 搜索、PDF 生成、日程同步等实用工具，`tools.py` 通过统一入口复用这些能力。
 - **事件与任务管理**：`src/agent/memory/events.py`、`src/agent/tools/calendar.py` 与 `src/agent/tools/tasks.py` 使用 SQLite/JSON 维护事件时间线、日程与待办任务，并支持提醒。
 - **异步任务队列**：`src/agent/queue` 提供 SQLite + asyncio 的轻量队列，`src/bg_worker.py` 可持续消费任务执行 LangGraph。
@@ -118,7 +122,6 @@ ISAK-AGENT0.1/
 - **管理任务**：
   - `/task add 标题; [截止时间]; [备注]` 创建任务，截止时间同样支持常见的日期/时间格式。
   - `/task done <任务ID>` 标记完成，`/tasks` 查看未完成任务，`/tasks all` 包含已完成条目。
-- **自动衔接规划结果**：使用 `/plan` 或由 LangGraph 管线生成的计划会调用 `plan_tasks()`，该函数基于 DeepAgents 自动拆解可执行子任务并派生子 Agent。你可以直接将这些子任务通过 `/schedule` 与 `/task add` 录入日程和待办列表，而无需自行划分层级；若 DeepAgents 暂时不可用，系统会退回到原始输入，确保流程不中断。
 
 这些命令与 CLI 其他功能共享会话上下文，可随时结合 LangGraph 生成的规划/调研结果继续调度日程。
 
@@ -129,15 +132,6 @@ ISAK-AGENT0.1/
   python main.py
   ```
   支持 `/summarize`、`/search`、`/plan`、`/research`、`/report`、`/schedule`、`/agenda`、`/task`、`/tasks`、`/remind`、`/history`、`/clear`、`exit/quit`。
-
-- **Streamlit Web UI**
-  ```bash
-  streamlit run streamlit_app.py
-  ```
-  浏览器界面与 CLI 共用同一套指令和 DeepAgents 记忆体系：
-  - 通过聊天框输入任意命令或问题即可获得实时回复。
-  - 会话历史会展示在页面中，输入 `exit`/`quit` 会结束当前会话并提示刷新以重新开始。
-  - `/plan`、`/schedule`、`/task` 等指令可与浏览器上传的交互式操作结合，实现任务拆解与日程管理。
 
 - **Python 调用 LangGraph**
   ```python
