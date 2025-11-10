@@ -9,8 +9,6 @@ from pathlib import Path
 from threading import RLock
 from typing import Dict, List, Optional
 
-from deepagents.tools import edit_file, ls, read_file, write_file
-
 try:  # pragma: no cover - optional dependency
     import requests
 except ImportError:  # pragma: no cover
@@ -202,20 +200,6 @@ class CloudHistoryStore(BaseHistoryStore):
                 self._fallback.clear_history()
 
 
-class DeepAgentFileMemory:
-    def list_files(self, path: str = "."):
-        return ls(path)
-
-    def read(self, path: str):
-        return read_file(path)
-
-    def write(self, path: str, content: str):
-        write_file(path, content)
-
-    def edit(self, path: str, new_text: str):
-        edit_file(path, new_text)
-
-
 def _create_history_store() -> BaseHistoryStore:
     backend = (HISTORY_BACKEND or "memory").strip().lower()
     if backend == "file":
@@ -275,5 +259,4 @@ __all__ = [
     "get_recent_history",
     "set_history_store",
     "get_history_store",
-    "DeepAgentFileMemory",
 ]

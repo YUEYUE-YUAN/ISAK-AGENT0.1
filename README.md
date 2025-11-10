@@ -1,21 +1,22 @@
 # ISAK-Agent0.1
 
-一个具备多工具路由、Persona、知识库检索、DeepAgents 任务分解与多入口体验的 LangGraph 智能体示例。
+一个具备多工具路由、Persona、知识库检索与后台队列的 LangGraph 智能体。
 
-## 🚀 功能总览
+由于饱受复杂工作流程，信息碎片化，信息隐私困扰，所以自己写了这个人agent的代码，可在CLI运行，解放生产力。
 
-- **多智能体路由**：`src/agent/graph.py` 使用 `KnowledgeRouter` 按需求将请求派发给对话、摘要、调研、规划或文档子 Agent。
-- **Persona 支持**：`src/agent/personas/registry.yaml` 配置多种角色语气，路由后的请求会自动注入对应 Persona。
-- **自动任务分解**：`src/agent/agents/planner.py` 借助 DeepAgents 的 `write_todos` 与 `task` 自动生成子任务及子 Agent，`/plan` 指令或 LangGraph 节点会直接复用。
-- **知识库检索**：`src/agent/memory/vector.py` + `src/agent/tools/docs.py` 提供离线向量搜索，首次读取 `data/kb/` 文档时会自动构建索引。
-- **多种界面**：
-  - CLI：`main.py` 支持 `/summarize`、`/search`、`/plan`、`/research`、`/report`、`/schedule`、`/agenda`、`/task`、`/tasks`、`/remind`、`/history`、`/clear`、`exit/quit`。
-  - Streamlit：`streamlit_app.py` 在浏览器内提供与 CLI 一致的命令与历史展示。
-  - HTTP/异步：`src/api_server.py` 暴露 `/chat` API，`src/run_async_client.py` 演示异步调用。
-- **工具生态**：`src/agent/tools` 下的 calendar/docs/tasks/web 等模块提供摘要、搜索、日程、文档、提醒等能力，并通过 `tools.py` 暴露统一入口。
-- **会话与事件记忆**：`memory.py` 支持内存/本地/云端多种历史存储；`src/agent/memory/events.py` 维护事件时间线。
-- **任务与日程管理**：`src/agent/tools/calendar.py` 与 `src/agent/tools/tasks.py` 基于 SQLite/JSON 记录日程和待办，并与 DeepAgents 拆解结果衔接。
-- **后台执行**：`src/agent/queue` + `src/bg_worker.py` 提供 SQLite + asyncio 的轻量队列以批量处理任务。
+下一个版本会加入：
+*语音识别/合成（Whisper + TTS）和图像理解节点，用于语音助手或场景识别
+
+## 🚀 当前能力一览
+
+- **多智能体路由**：`src/agent/graph.py` 通过 `KnowledgeRouter` 识别需求并将请求分发给对话、摘要、调研、规划或文档生成子 Agent。
+- **Persona 支持**：`src/agent/personas/registry.yaml` 定义了多种语气与角色，路由结果会注入对应 Persona 风格到模型提示词。
+- **知识库检索**：`src/agent/memory/vector.py` 基于轻量向量存储实现项目级知识库，配合 `tools/docs.py` 提供离线相似度搜索。
+- **命令行体验**：`main.py` 在原有 `/summarize`、`/search`、`/history`、`/clear` 之上新增 `/plan`、`/research`、`/report`、`/schedule`、`/agenda`、`/task`、`/tasks`、`/remind` 等指令，便于直接调用专用子 Agent 与日程/任务助手。
+- **工具生态**：`src/agent/tools` 下提供摘要复用、离线 Web 搜索、PDF 生成、日程同步等实用工具，`tools.py` 通过统一入口复用这些能力。
+- **事件与任务管理**：`src/agent/memory/events.py`、`src/agent/tools/calendar.py` 与 `src/agent/tools/tasks.py` 使用 SQLite/JSON 维护事件时间线、日程与待办任务，并支持提醒。
+- **异步任务队列**：`src/agent/queue` 提供 SQLite + asyncio 的轻量队列，`src/bg_worker.py` 可持续消费任务执行 LangGraph。
+- **HTTP API & 异步客户端**：`src/api_server.py` 暴露 `/chat` 接口，`src/run_async_client.py` 演示如何异步调用图。
 
 ## 📁 项目结构
 
@@ -84,40 +85,43 @@ ISAK-AGENT0.1/
    source .venv/bin/activate  # Windows 使用 .venv\Scripts\activate
    pip install -r requirements.txt
    ```
-2. **准备环境变量**
-   ```bash
-   cp .env.example .env
-   # 在 .env 中写入 OPENAI_API_KEY；可选：OPENAI_API_BASE、DEFAULT_MODEL、MAX_TOKENS、TEMPERATURE 等
-   ```
-3. **（可选）准备知识库**：把自定义文档放入 `data/kb/`，首次运行时会自动向量化并缓存。
+2. **配置 OpenAI 凭据**
+ ```bash
+  cp .env.example .env
+  # 在 .env 中写入 OPENAI_API_KEY、可选的 OPENAI_API_BASE/DEFAULT_MODEL 等
+  ```
+3. **（可选）加载知识库**：将项目文档放入 `data/kb/`，首次运行时会自动构建向量索引。
 
 ## 💾 会话历史存储
 
-- **内存模式**：`HISTORY_BACKEND` 留空或设为 `memory`，历史仅在运行期间保留。
-- **本地文件**：设置 `HISTORY_BACKEND=file`，可通过 `HISTORY_FILE_PATH` 指定 JSON 输出位置（默认 `outputs/history.json`）。
-- **云端同步**：设置 `HISTORY_BACKEND=cloud` 并配置 `HISTORY_CLOUD_URL`、可选的 `HISTORY_CLOUD_TOKEN`。写入会同时更新本地备份（`HISTORY_CLOUD_FALLBACK_PATH` 或 `HISTORY_FILE_PATH`），离线时自动回退到本地。
+- **默认（内存）**：`HISTORY_BACKEND` 留空或设为 `memory` 时，对话仅保存在运行时内存中，适合一次性会话。
+- **本地持久化**：将 `.env` 中的 `HISTORY_BACKEND` 设为 `file`，并可通过 `HISTORY_FILE_PATH` 指定保存路径（默认 `outputs/history.json`）。历史记录会以 JSON 形式写入磁盘，可在后续会话或其他脚本中直接读取。
+- **同步个人云端**：将 `HISTORY_BACKEND` 设为 `cloud`，并提供 `HISTORY_CLOUD_URL`（POST/GET/DELETE 对话记录的 HTTP 接口）以及可选的 `HISTORY_CLOUD_TOKEN`（Bearer Token）。
+  - 程序会在每次写入时向云端发送 JSON 对象，同时根据 `HISTORY_CLOUD_FALLBACK_PATH`（或默认的 `HISTORY_FILE_PATH`）保留一份本地备份，离线时会自动切换到备份存储。
+  - 读取和清空历史记录会优先访问云端接口，失败时同样退回到本地备份，保证随时可查。
 
-CLI、Streamlit、API 等入口共享同一套接口，因此配置一次即可在多终端复用历史。
+通过这些配置，你可以在 CLI、HTTP API 或自定义脚本中随时复用相同的历史记录，实现多终端共享或长期归档。
 
 ## 📚 向量知识库存储
 
-- **内存模式**：`KB_BACKEND=memory`（默认）仅在运行期维护索引。
-- **本地文件**：设置 `KB_BACKEND=file` 并通过 `KB_FILE_PATH` 指定缓存路径（默认 `outputs/vector_store.json`）。
-- **云端同步**：设置 `KB_BACKEND=cloud`，提供 `KB_CLOUD_URL`、可选的 `KB_CLOUD_TOKEN`、`KB_CLOUD_TIMEOUT` 以及 `KB_CLOUD_FALLBACK_PATH`。失败时同样自动落盘并回退读取。
+- **默认（内存）**：`KB_BACKEND` 留空或设为 `memory` 时，向量化后的知识库仅存在于运行内存中。
+- **本地文件**：设为 `file` 并通过 `KB_FILE_PATH` 指定保存位置（默认 `outputs/vector_store.json`）。程序会在加载 `data/kb/` 文档后自动写入该文件，后续启动会直接复用缓存。
+- **个人云端**：设为 `cloud`，提供 `KB_CLOUD_URL`（需支持 `GET`/`PUT` 返回/接收 JSON 列表）以及可选的 `KB_CLOUD_TOKEN`。
+  - 同时可配置 `KB_CLOUD_FALLBACK_PATH`（默认使用 `KB_FILE_PATH`），离线或请求失败时会自动落盘，下一次启动会先读取本地备份再尝试同步云端。
+  - `KB_CLOUD_TIMEOUT` 用于自定义网络超时时间（秒），默认 5s。
 
-所有入口都会读取相同的向量存储设置，保证知识库的一致性。
+无论从命令行还是通过 LangGraph 管线访问知识库，相同的配置都会保证向量索引被写入并从指定存储位置加载，实现多端共享或快速恢复。
 
 ## 🗓️ 日程与任务助手
 
-- **存储配置**：
-  - `CALENDAR_DB_PATH`（默认 `outputs/calendar.db`）用 SQLite 记录日程，供 `/schedule`、`/agenda`、`/remind` 使用。
-  - `TASKS_FILE_PATH`（默认 `outputs/tasks.json`）保存待办事项，供 `/task`、`/tasks`、`/remind` 读取。
-- **常用命令**：
-  - `/schedule 标题; 开始时间; 结束时间; [地点]; [描述]`
-  - `/agenda [天数]`、`/remind [天数]`
-  - `/task add 标题; [截止时间]; [备注]`
-  - `/task done <任务ID>`、`/tasks`、`/tasks all`
-- **与 DeepAgents 联动**：`/plan` 会通过 `plan_tasks()` 自动拆解子任务并生成子 Agent；命令行或 Streamlit 中可直接把这些结果录入日程/任务列表。若 DeepAgents 不可用，系统会回退到原始输入确保流程不中断。
+- **存储位置**：
+  - `CALENDAR_DB_PATH`（默认 `outputs/calendar.db`）用于持久化 `/schedule`、`/agenda`、`/remind` 命令涉及的日程信息，基于 SQLite 自动创建数据库。
+  - `TASKS_FILE_PATH`（默认 `outputs/tasks.json`）用于保存 `/task`、`/tasks`、`/remind` 命令记录的待办事项，采用 JSON 文本方便同步或备份。
+- **添加日程**：`/schedule 标题; 开始时间; 结束时间; [地点]; [描述]`，时间支持 `YYYY-MM-DD HH:MM`、`YYYY-MM-DDTHH:MM` 以及仅日期（默认 09:00/18:00）。
+- **查看行程**：`/agenda [天数]` 列出未来 N 天的日程，`/remind [天数]` 会同时给出即将到期的任务、逾期任务以及日程提醒。
+- **管理任务**：
+  - `/task add 标题; [截止时间]; [备注]` 创建任务，截止时间同样支持常见的日期/时间格式。
+  - `/task done <任务ID>` 标记完成，`/tasks` 查看未完成任务，`/tasks all` 包含已完成条目。
 
 这些命令与 CLI 其他功能共享会话上下文，可随时结合 LangGraph 生成的规划/调研结果继续调度日程。
 
@@ -127,15 +131,9 @@ CLI、Streamlit、API 等入口共享同一套接口，因此配置一次即可�
   ```bash
   python main.py
   ```
-  终端会展示所有可用命令，输入 `exit`/`quit` 结束会话。
+  支持 `/summarize`、`/search`、`/plan`、`/research`、`/report`、`/schedule`、`/agenda`、`/task`、`/tasks`、`/remind`、`/history`、`/clear`、`exit/quit`。
 
-- **Streamlit Web UI**
-  ```bash
-  streamlit run streamlit_app.py
-  ```
-  浏览器端与 CLI 共用一套处理逻辑，可直接执行全部命令。
-
-- **Python 集成**
+- **Python 调用 LangGraph**
   ```python
   from graph_config import graph
   result = graph.invoke({"input": "给我一个发布计划"})
@@ -148,11 +146,11 @@ CLI、Streamlit、API 等入口共享同一套接口，因此配置一次即可�
   curl -X POST http://localhost:8080/chat -d '{"input": "总结以下内容"}'
   ```
 
-- **后台队列**
+- **异步队列/后台任务**
   ```bash
   python -m src.bg_worker
   ```
-  使用 `AsyncTaskQueue.enqueue` 将请求写入 SQLite 队列，worker 会自动执行。
+  使用 `AsyncTaskQueue.enqueue` 将请求写入 SQLite 队列，worker 会自动调用 LangGraph。
 
 ## 🧪 测试
 
