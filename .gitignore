@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.Python
+.env
+.venv/
+*.sqlite3
+*.db
+outputs/**/*.db
+outputs/**/*.json
+outputs/**/*.csv
+outputs/**/*.pdf
+workspace/
+.pytest_cache/
+.DS_Store
